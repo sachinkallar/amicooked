@@ -83,3 +83,25 @@ flutter run -d windows
 # Build production web bundle (output located at build/web)
 flutter build web --release
 ```
+
+### Deploying to Netlify
+
+The root `netlify.toml` configures Netlify to run `scripts/netlify-build.sh`
+and publish `build/web`, rather than the Flutter source files. The script
+uses an installed Flutter SDK when available, or downloads the official stable
+Linux SDK archive for the build machine's architecture into a temporary directory.
+It verifies the archive's SHA-256 checksum before extracting it, installing
+dependencies, and compiling the app. SDK installation does not require `git clone`.
+
+For the downloaded SDK, the script validates the bundled version metadata against
+the release manifest and runs the prebuilt Flutter tool with its bundled Dart
+runtime. This preserves the release's SDK version in environments that block
+Flutter's Git-based bootstrap and version detection. Automatic version checks
+are disabled for this temporary SDK.
+
+A fallback rewrite serves `index.html` for client-side routes such as `/check`
+and `/calculators`, so opening or refreshing those URLs does not return a
+Netlify page-not-found error. Existing files are served normally.
+
+Redeploy the site after applying this configuration. Verify that `/` loads
+the application and that opening `/check` directly also loads the application.
